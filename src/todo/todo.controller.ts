@@ -1,21 +1,47 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { CreatToDoDTO } from './DTO/creat-todo.dto';
+import { GetToDoFilter } from './DTO/Get-ToDO-Filter.dto';
+import { ToDo } from './ToDo.model';
 import { TodoService } from './todo.service';
 
 @Controller('todo')
 export class TodoController {
   constructor(private todoService: TodoService) {}
   @Get()
-  getAllToDo() {
+  getToDo(@Query() filterDto: GetToDoFilter) {
+    if (Object.keys(filterDto).length) {
+      return this.todoService.GetToDoWithFilter(filterDto);
+    }
     return this.todoService.getAllToDo();
   }
+
+  @Get('/:id')
+  getToDoById(@Param('id') id: string): ToDo {
+    return this.todoService.getToDoById(id);
+  }
+
   @Post()
-  CreatTodo(
-    @Body('name') name: string,
-    @Body('desc') desc: string,
-    @Body('Priority') Priority: number,
-    @Body('Due') Due: number,
+  CreatTodo(@Body() CreatToDo: CreatToDoDTO): ToDo {
+    return this.todoService.CreatToDo(CreatToDo);
+  }
+  @Delete('/:id')
+  deleteToDOById(@Param('id') id: string) {
+    this.todoService.DeleteToDOById(id);
+  }
+  @Patch('/:id/Proggress')
+  UpdateToDoProggress(
+    @Param('id') id: string,
     @Body('Proggress') Proggress: number,
-  ) {
-    return this.todoService.CreatToDo(name, desc, Priority, Due, Proggress);
+  ): ToDo {
+    return this.todoService.UpdateToDOProggress(id, Proggress);
   }
 }
